@@ -448,24 +448,12 @@ MonoBehaviour:
   player: {fileID: 982699913465026788, guid: 6943cd4c188cd20479c9733b56787f30, type: 3}
   aggroDistance: 0
   speed: 0
+  health: 0
   projectileFireRate: 0
   projectileForce: 0
   projectilePrefab: {fileID: -7328023009347845508, guid: ea1d69372493f5743bb7c4165a6e5df8, type: 3}
   projectileSpawnPoint: {fileID: 773295032346363916}
-  patrolPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  patrolPoints: []
   randomPoints: []
 --- !u!1 &8628474959708899933
 GameObject:

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class Enemy : Subject, IObserver
+public class Enemy : Subject, IObserver, IPoolObject
 {
     private Transform currentTarget;
     Rigidbody rigidbody;
@@ -16,6 +16,8 @@ public class Enemy : Subject, IObserver
     [SerializeField] Transform player;
     [SerializeField] float aggroDistance;
     [SerializeField] float speed;
+    [SerializeField] int health;
+    int maxHealth;
     bool isAlerted = false;
     bool isLooking = false;
 
@@ -35,6 +37,8 @@ public class Enemy : Subject, IObserver
 
     public Graph<Transform> patrolGraph = new Graph<Transform>();
 
+    GameObject[] pointTransforms;
+
     bool debugLog = false;
 
     int pointcount;
@@ -43,7 +47,6 @@ public class Enemy : Subject, IObserver
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
-        pointcount = patrolPoints.Count;
 
         if (aggroDistance <= 0)
         {
@@ -59,6 +62,14 @@ public class Enemy : Subject, IObserver
                 Debug.Log("Enemy Speed not set on " + name + " defaulting to " + speed);
         }
 
+        if (health <= 0)
+        {
+            health = 2;
+            if (debugLog)
+                Debug.Log("Enemy Health not set on " + name + " defaulting to " + health);
+        }
+        maxHealth = health;
+
         if (projectileFireRate <= 0)
         {
             projectileFireRate = 3.0f;
@@ -72,6 +83,14 @@ public class Enemy : Subject, IObserver
             if (debugLog)
                 Debug.Log("Enemy ProjectileForce not set on " + name + " defaulting to " + projectileForce);
         }
+
+        pointTransforms = GameObject.FindGameObjectsWithTag("Patrol");
+        player = FindObjectOfType<Character>().transform;
+        for (int i = 0; i < pointTransforms.Length; i++)
+        {
+            patrolPoints.Add(pointTransforms[i].transform);
+        }
+        pointcount = patrolPoints.Count;
 
         for (int i = 0; i < pointcount; i++)
         {
@@ -157,6 +176,10 @@ public class Enemy : Subject, IObserver
             Notify();
             ObserverUpdate();
             Destroy(other.gameObject);
+
+            health--;
+            if (health <= 0)
+                gameObject.SetActive(false);
         }
     }
 
@@ -202,5 +225,25 @@ public class Enemy : Subject, IObserver
         isLooking = false;
         // Points towards the next node
         transform.LookAt(currentTarget);
+    }
+
+    private void OnEnable()
+    {
+        health = maxHealth;
+    }
+
+    public bool InUse()
+    {
+        return gameObject.activeInHierarchy;
+    }
+
+    public void Init(Transform spawn)
+    {
+        isAlerted = false;
+        aggroDistance = 10.0f;
+        enemyState = EnemyState.Patrol;
+        gameObject.SetActive(true);
+        gameObject.transform.position = spawn.position;
+        gameObject.transform.rotation = spawn.rotation;
     }
 }
